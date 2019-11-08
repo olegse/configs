@@ -14,8 +14,8 @@ function usage() {
   echo "Usage: `basename $0 .sh` [-i] [-s] [FILE]..."
   echo ""
   echo "Install config files. Install files to their respective system"
-  echo "locations. If one or more files are specified only this files are"
-  echo "processed. If the destination file exists, it is backed up."
+  echo "locations. If no file was specified on the command line, only this files"
+  echo "are processed. If the destination file exists, backup is created."
   echo ""
   echo "  -i      install files (default)"
   echo "  -s      update directory with the system config files"
@@ -25,7 +25,7 @@ function usage() {
   exit $1
 }
 
-files=$( ls -1 | grep -v $(basename $0))
+#  'files' is the array of the filenames to be processed
 
 while getopts "islh" opt; do
   case $opt in
@@ -38,6 +38,9 @@ while getopts "islh" opt; do
   action=$opt
 done
 
+shift $((OPTIND-1))   # now $* is the remained filenames
+test "$*" && files=$* || files=$( ls -1 | grep -v $(basename $0));
+test action == "l" || echo "$files" && exit
 function i {
   echo in i; exit
   for file in $files
@@ -46,17 +49,14 @@ function i {
   done
 }
 
-# Source system files into the current directory
+#  Source system files into the current directory,
+#  adding a '.old' suffix for the existent ones.
 function s {
   for file in $files
   do
     cp -vbS.old ~/.$file $file
   done
-}
-
-# List all the files that gonna be processed
-function l {
-  ls -1 | grep -v $(basename $0)
+  echo "Do not forget to remove backed up files."
 }
 
 $action
