@@ -25,8 +25,7 @@ function usage() {
   exit $1
 }
 
-#  'files' is the array of the filenames to be processed
-
+test $1 || usage 0;
 while getopts "islh" opt; do
   case $opt in
     i) ;;
@@ -39,10 +38,14 @@ while getopts "islh" opt; do
 done
 
 shift $((OPTIND-1))   # now $* is the remained filenames
-test "$*" && files=$* || files=$( ls -1 | grep -v $(basename $0));
-test action == "l" || echo "$files" && exit
+test "$*" && files=$* || files=$( ls -1 | grep -v "$(basename $0)\|.*.old");
+
+# Perform an action
+
+test $action == l && { echo "$files"; exit 0; };  # list files on 'l'
+
+# Install config files
 function i {
-  echo in i; exit
   for file in $files
   do 
     cp -v -b $file ~/.$file
@@ -56,7 +59,25 @@ function s {
   do
     cp -vbS.old ~/.$file $file
   done
-  echo "Do not forget to remove backed up files."
+
+  declare -a modified_files
+  for file in $files
+  do
+    if ! cmp -s $file $file.old
+    then
+      modified_files[${#modified_files[@]}]=$file
+    fi
+  done
+
+  if [[ "${modified_files[@]}" ]]
+  then
+    echo "There is difference in the following files: "
+    for file in ${modified_files[@]}
+    do echo "   $file <-> $file.old"
+    done
+    echo "Please review and merge backed up files; they are" \
+         "ignored and will not be pushed to repository."
+  fi
 }
 
 $action
