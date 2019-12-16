@@ -61,7 +61,7 @@ function i {
 
 # Show difference between new and backedup file
 function m() {
-  declare -a modified_files
+  declare -a modified_files identical_files
   for file in $files
   do
     if test -e "$file.old"
@@ -84,7 +84,7 @@ function m() {
     echo "Please review and merge backed up files; they are" \
          "ignored and will not be pushed to repository."
   elif
-     [[ -n "${#identical_files[@]}" ]]
+     [[ -n "${identical_files[@]}" ]]
     then
     echo "No difference was found in the backed files. "
     echo "Following files can be safely removed: "
@@ -92,7 +92,12 @@ function m() {
     do echo "   $file.old"
     done
   else
-    echo "There is no backup files to compare."
+    if [ "$action" == "s" ]
+    then
+      echo "No backup files were created."
+    else
+      echo "No backup files were found."
+    fi
   fi
   unset modified_files identical_files
 }
