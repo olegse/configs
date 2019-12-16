@@ -7,6 +7,7 @@ set tabstop=2
 set et
 set nohls
 set splitbelow
+set matchpairs=<:>,[:],{:},(:)
 highlight Comment ctermfg=Blue
 syntax enable
 
