@@ -1,3 +1,37 @@
+# Program aliases
+
+############   VBOX   #####################
+
+alias vbox="VBoxManage"
+
+alias list_runningvms="VBoxManage list runningvms 2>&1 | awk '{ print $1 }'"
+
+function store_vm_uuid() {
+  list_runningvms | grep $1
+}
+# Get running vm uuid by name; [ ] How to use passed name
+# as a backreference to variable name?
+function get_vm_uuid() {
+  # Maybe add a select prompt; will be easier
+  if [ $# -eq 0 ]
+  then  
+    VBoxManage list vms | awk '{print $1}'
+  elif [ $# -eq 1 ] && [[ ! $1 =~ help ]]
+  then
+    vm=$(VBoxManage list vms | sed -n "/^\"$1\"/ s/.*{\(.*\)}.*/\1/p")
+    if ! test -n "$vm" 
+    then
+      echo "vm '$1' was not found"
+    else
+      echo "vm=$vm"
+    fi
+  else
+    echo "get_vm_uuid [NAME]"
+  fi
+}
+
+
+
 # Configure container aliases
 
 # Set cnt_id to id of the last container
