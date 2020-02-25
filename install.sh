@@ -56,7 +56,7 @@ test "$action" == l && { echo "$files"; exit 0; };  # list files on 'l'
 function i {
   for file in $files
   do 
-    cp -v -b $file ~/.$file
+    cp -v -b $file ~/.$file # back file will be displayed only if backed up
   done
 }
 
