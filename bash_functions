@@ -9,6 +9,7 @@ alias list_runningvms="VBoxManage list runningvms 2>&1 | awk '{ print $1 }'"
 function store_vm_uuid() {
   list_runningvms | grep $1
 }
+
 # Get running vm uuid by name; [ ] How to use passed name
 # as a backreference to variable name?
 function get_vm_uuid() {

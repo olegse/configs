@@ -42,13 +42,14 @@ done
 test -n "$action" || usage 1; # no action was specified
 
 shift $((OPTIND-1))   # now $* is the remained filenames
-                      # exclude from listing script name and backed up files
+                      # exclude from listing script name and backed-up files
                       # from the previous sourcing procedure
 test "$*" && files=$* || files=$( ls -1 | grep -v "$(basename $0)\|.*.old");
 
+
 # Perform an action
-
-
+#
+# List files
 test "$action" == l && { echo "$files"; exit 0; };  # list files on 'l'
 
 # Install config files
