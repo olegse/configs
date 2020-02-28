@@ -28,13 +28,15 @@ map <C-c> :s/#//<Return>
 " s{  surround by { } 
 " s{{ surround with {{ }}
 " s[  surround [
-" oa{  open a {{
+" oa{{  open a {{
 map s" lBi"<Esc>Ea"<Esc>
 map s' lBi'<Esc>Ea'<Esc>
 map s[ lbi[<Esc>ea]<Esc>
 map s{ lbi{<Esc>ea}<Esc>
 map s{{ lBi{{ <Esc>ea }}<Esc>
-map oa{ a{{ }}<Esc>F{a 
+map oa{ a${}<Esc>i
+map oa{{ a{{ }}<Esc>F{a 
+"map oa}  a${}<Esc>i
 
 "map sv lF=a$(<Esc>Ea)<Esc>
 "" surround as a variable $() till the end of the line
@@ -42,4 +44,3 @@ map oa{ a{{ }}<Esc>F{a
 "" put copied text under the line
 "map pu o<C-R>"
 "" put copied text above the line
-"map pa O<C-R>"

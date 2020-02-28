@@ -2,8 +2,6 @@
 #
 # Distribute config files to their respective places on the filesystem. 
 # existing configs permanently.
-# Add an option to learn from existing config into the directory.
-# Accept directory prefix.
 
 # To implement:
 #     Backup files or `--no-backup' to overwrite.
@@ -12,7 +10,6 @@
 # Add a prompt to remove the files.
 
 function usage() {
- 
   echo "Usage: `basename $0 .sh` [-i] [-s] [FILE]..."
   echo ""
   echo "Install config files. Install files to their respective system"
@@ -45,7 +42,6 @@ shift $((OPTIND-1))   # now $* is the remained filenames
                       # exclude from listing script name and backed-up files
                       # from the previous sourcing procedure
 test "$*" && files=$* || files=$( ls -1 | grep -v "$(basename $0)\|.*.old");
-
 
 # Perform an action
 #

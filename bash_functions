@@ -4,42 +4,21 @@
 
 alias vbox="VBoxManage"
 
-# List vms
-function list_vms() {
-  vm=.*
-  test -z "$1" || vm=$1
-  #echo "vm: $vm"
-  VBoxManage list vms 2>&1 | awk '/'"$vm"'/ { print $1 }'
+alias list_runningvms="VBoxManage list runningvms 2>&1 | awk '{ print $1 }'"
+
+function store_vm_uuid() {
+  list_runningvms | grep $1
 }
-
-# List only running vm's
-function list_runningvms() {
-  vm=.*
-  test -z "$1" || vm=$1
-  #echo "vm: $vm"
-  VBoxManage list runningvms 2>&1 | awk '/'"$vm"'/ { print $1 }'
-}
-
-# List vms
-function list_vms_by_uuid() {
-  vm=.*
-  test -z "$1" || vm=$1
-  #echo "vm: $vm"
-  VBoxManage list vms 2>&1 | sed -n "/^\"$vm\"/ s/.*{\(.*\)}.*/\1/p"
-}
-# ! try to avoid usage of vm and use something like ${1:-.*} 
-
-
 # Get running vm uuid by name; [ ] How to use passed name
 # as a backreference to variable name?
 function get_vm_uuid() {
   # Maybe add a select prompt; will be easier
   if [ $# -eq 0 ]
   then  
-    list_vms "$1"
+    VBoxManage list vms | awk '{print $1}'
   elif [ $# -eq 1 ] && [[ ! $1 =~ help ]]
   then
-    vm=$(list_vms_by_uuid "$1")
+    vm=$(VBoxManage list vms | sed -n "/^\"$1\"/ s/.*{\(.*\)}.*/\1/p")
     if ! test -n "$vm" 
     then
       echo "vm '$1' was not found"
@@ -52,6 +31,7 @@ function get_vm_uuid() {
 }
 
 
+################# TMUX ####################
 
 # Configure container aliases
 
