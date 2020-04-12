@@ -8,10 +8,15 @@ set is            " increment search
 set et            " expand tab
 set nohls
 set splitbelow
+set hls
+set rnu           " relativenumber
+
+" Highlighting
 highlight Search ctermbg=green ctermfg=black
 
 "highlight Comment ctermfg=Blue
 syntax enable
+
 
 " Store substitution command in a register
 let @c='s/^\(\s*\)\([^ \t#]\)/\1#\2/'
@@ -23,6 +28,11 @@ map <C-c> :s/#//<Return>
 
 "map <C-u> :@u<Return>
 
+" Mappings
+map so  :source $MYVIMRC
+
+" Surrounding mappings
+" 
 " s"  surround double quotes
 " s'  surround single quotes
 " s{  surround by { } 
@@ -34,13 +44,16 @@ map s' lBi'<Esc>Ea'<Esc>
 map s[ lbi[<Esc>ea]<Esc>
 map s{ lbi{<Esc>ea}<Esc>
 map s{{ lBi{{ <Esc>ea }}<Esc>
-map oa{ a${}<Esc>i
-map oa{{ a{{ }}<Esc>F{a 
-"map oa}  a${}<Esc>i
+map o'  a''<Esc>i
+map o{ a${}<Esc>i
+map o{{ a{{ }}<Esc>F{a 
+
+" Text pasting mappings
+" pu      put word under cursor under the line
+" pa      put word under cursor above the line
+map pu yiwo<C-R>"<Space>
+map pa yiwo<C-R>"<Space>
 
 "map sv lF=a$(<Esc>Ea)<Esc>
 "" surround as a variable $() till the end of the line
 "map sV lF=a$(<Esc>A)<Esc>
-"" put copied text under the line
-"map pu o<C-R>"
-"" put copied text above the line

@@ -5,7 +5,8 @@
 
 # To implement:
 #     Backup files or `--no-backup' to overwrite.
-#     Add an option to remove backup files.
+#     Add an option to remove backup files when it is no difference
+#     between files or interactive
 # Expand short option to function name.
 # Add a prompt to remove the files.
 
