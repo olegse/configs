@@ -29,7 +29,8 @@ map <C-c> :s/#//<Return>
 "map <C-u> :@u<Return>
 
 " Mappings
-map so  :source $MYVIMRC
+map si  :split $MYVIMRC<Return>
+map so  :source $MYVIMRC<Return>
 
 " Surrounding mappings
 " 
@@ -47,12 +48,16 @@ map s{{ lBi{{ <Esc>ea }}<Esc>
 map o'  a''<Esc>i
 map o{ a${}<Esc>i
 map o{{ a{{ }}<Esc>F{a 
+map o( a$()<Esc>i
 
 " Text pasting mappings
 " pu      put word under cursor under the line
 " pa      put word under cursor above the line
-map pu yiwo<C-R>"<Space>
-map pa yiwo<C-R>"<Space>
+map ya yiwo<C-R>"<Space>
+map pa O<C-R>"<Space>
+
+map yu yiwo<C-R>"<Space>
+map pu o<C-R>"<Space>
 
 "map sv lF=a$(<Esc>Ea)<Esc>
 "" surround as a variable $() till the end of the line
