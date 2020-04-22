@@ -12,25 +12,33 @@ set hls
 set rnu           " relativenumber
 
 " Highlighting
-highlight Search ctermbg=green ctermfg=black
+highlight Search ctermbg=black  ctermfg=white
+highlight Comment ctermbg=none ctermfg=DarkYellow
 
-"highlight Comment ctermfg=Blue
 syntax enable
 
 
-" Store substitution command in a register
-let @c='s/^\(\s*\)\([^ \t#]\)/\1#\2/'
+" Registers
+let @p='·'
+"let @c='s/^\(\s*\)\([^ \t#]\)/\1#\2/'
+""let @c='I<!-- <Esc>'
 
 " Comment selected lines; still doesn't work when
 " called with the register, like :@c<Return>
 map <C-x> :s/^\(\s*\)\([^ \t#]\)/\1#\2/<Return>
 map <C-c> :s/#//<Return>
 
-"map <C-u> :@u<Return>
-
 " Mappings
+"
+" Open $MYVIMRC
 map si  :split $MYVIMRC<Return>
+
+" Source $MYVIMRC
 map so  :source $MYVIMRC<Return>
+
+" Clear search
+map <C-n>   :nohls<Return>
+
 
 " Surrounding mappings
 " 
@@ -39,26 +47,35 @@ map so  :source $MYVIMRC<Return>
 " s{  surround by { } 
 " s{{ surround with {{ }}
 " s[  surround [
-" oa{{  open a {{
-map s" lBi"<Esc>Ea"<Esc>
-map s' lBi'<Esc>Ea'<Esc>
+" o{{  open  {{
+" ob   open (bracket) ${}
+" op   open (parenthesses)  $() 
+map s" lbi"<Esc>Ea"<Esc>
+map s' lbi'<Esc>Ea'<Esc>
+map s9 lbi(<Esc>ea)<Esc>
 map s[ lbi[<Esc>ea]<Esc>
+map sb lbi${<Esc>ea}<Esc>
 map s{ lbi{<Esc>ea}<Esc>
 map s{{ lBi{{ <Esc>ea }}<Esc>
 map o'  a''<Esc>i
-map o{ a${}<Esc>i
+map o"  a""<Esc>i
+map o9 a()<Esc>i
+map o{ a{}<Esc>i
 map o{{ a{{ }}<Esc>F{a 
-map o( a$()<Esc>i
+map ob a${}<Esc>i
+map op a$()<Esc>i
 
 " Text pasting mappings
 " pu      put word under cursor under the line
 " pa      put word under cursor above the line
-map ya yiwo<C-R>"<Space>
+map XX yaWo<C-R>"<Space>
 map pa O<C-R>"<Space>
 
-map yu yiwo<C-R>"<Space>
-map pu o<C-R>"<Space>
+map xx yaWo<C-R>"
+map pu o<C-R>"
 
 "map sv lF=a$(<Esc>Ea)<Esc>
 "" surround as a variable $() till the end of the line
 "map sV lF=a$(<Esc>A)<Esc>
+
+abbr teh the

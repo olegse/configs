@@ -107,3 +107,30 @@ function apt_show_repo() {
   else  grep "^[^#]*\w" /etc/apt/sources.list{,.d/*} | grep -i "$1"
   fi
 }
+
+
+################### vim #####################
+function vim() {
+  echo "\$* $*"
+  for f in ${*:1};   # for file on the command line
+    paths=$( find ${CDPATH//:/ } -name $f ) 
+    if [ ${#found[@]} -gt 1 ]
+    then
+      echo "Found more than one file in a CDPATH"
+      PS3="Select file to edit (open all):   "
+      select pathspec in ${paths[@]}
+      do
+        if [ -n "${pathspec}" ]
+        then
+          paths=( $pathspec ) 
+          break
+        fi
+
+        if [[ $REPLY =~ ^a(ll)?$ ]]
+        then
+          break
+        fi
+      done
+    fi
+    files+=( ${paths[@]} )
+  done
