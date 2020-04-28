@@ -110,27 +110,48 @@ function apt_show_repo() {
 
 
 ################### vim #####################
-function vim() {
+function vim-parse-cdpath() {
+  echo "In vim()";
   echo "\$* $*"
-  for f in ${*:1};   # for file on the command line
-    paths=$( find ${CDPATH//:/ } -name $f ) 
-    if [ ${#found[@]} -gt 1 ]
+  echo ${CDPATH//:/ }
+
+  declare -a files
+  declare -a found
+
+  flag='-p'   # vim flag to open multiple files
+
+  for file do   # iterate $*
+    echo "Processing pattern... '$file'..";
+    paths=$( 
+        find ${CDPATH//:/ } -type f -not -path '*/.*' -and -name ${file} 2> /dev/null
+        ) 
+    echo "Found: ${paths[@]}"
+    if [ ${#paths[@]} -gt 1 ]
     then
       echo "Found more than one file in a CDPATH"
-      PS3="Select file to edit (open all):   "
-      select pathspec in ${paths[@]}
+      PS3="Select file to edit (or 'all'):   "
+      select path in ${paths[@]}
       do
-        if [ -n "${pathspec}" ]
+        if [ -n "${path}" ]     # selection was made
         then
-          paths=( $pathspec ) 
-          break
+          paths=( $path ) ; break    # set found[] to one element
         fi
 
         if [[ $REPLY =~ ^a(ll)?$ ]]
         then
           break
-        fi
+        fi # keep all the files
       done
     fi
-    files+=( ${paths[@]} )
-  done
+    files+=( ${paths[@]} )    # add current files set corresponding to the 'file' pattern to
+  done                        # the files[] array
+  echo -e "Following files will be opened:\n  " ${files[@]}
+
+  if ! [ "${files[@]}]" ]
+  then
+    echo "No files found"
+    exit
+  fi
+  read -n 1 -p "Press any key to continue..."
+  vim ${flag} ${files[@]}
+}

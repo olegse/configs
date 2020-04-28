@@ -26,12 +26,13 @@ function usage() {
   exit $1
 }
 
-while getopts "islmh" opt; do
+while getopts "islmph" opt; do
   case $opt in
     i) ;;
     s) ;;
     l) ;;
     m) ;;
+    p) ;;
     h) usage 0 ;;
     *) usage 1 ;;
   esac
@@ -48,6 +49,17 @@ test "$*" && files=$* || files=$( ls -1 | grep -v "$(basename $0)\|.*.old");
 #
 # List files
 test "$action" == l && { echo "$files"; exit 0; };  # list files on 'l'
+
+function p() {
+  if git ls-files --others --exclude-standard | grep -q .
+  then
+    echo "Found untracked files... aborting..."
+    exit 1
+  fi
+  git add . -A
+  git commit -m "Date:  $(date +\"%y-%m-%d   %r\")"
+  git push
+}
 
 # Install config files
 function i {

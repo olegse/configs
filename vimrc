@@ -12,7 +12,8 @@ set hls
 set rnu           " relativenumber
 
 " Highlighting
-highlight Search ctermbg=black  ctermfg=white
+highlight IncSearch ctermfg=blue  ctermbg=black
+highlight Search ctermbg=blue  ctermfg=black
 highlight Comment ctermbg=none ctermfg=DarkYellow
 
 syntax enable
