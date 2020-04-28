@@ -57,7 +57,7 @@ function p() {
     exit 1
   fi
   git add . -A
-  git commit -m "Date:  $(date +\"%y-%m-%d   %r\")"
+  git commit -m "Date:  $(date +'%y-%m-%d   %r')"
   git push
 }
 
