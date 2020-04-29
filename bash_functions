@@ -109,49 +109,230 @@ function apt_show_repo() {
 }
 
 
-################### vim #####################
-function vim-parse-cdpath() {
-  echo "In vim()";
-  echo "\$* $*"
-  echo ${CDPATH//:/ }
+# Perform an action on a directories in CDPATH
+# 
+# cdpath        print search directories
+# cdpath zip    navigate to the directory in which file "zip" is
+#               located
+# cdpath vim zip    if passed more than one argument, treat first 
+#                   argument as executable and all the others should
+#                   searched prior in CDPATH
+#
+function cdpath() {
 
   declare -a files
   declare -a found
 
-  flag='-p'   # vim flag to open multiple files
+  #default action
+  bin=cd
+  action=$bin
 
-  for file do   # iterate $*
-    echo "Processing pattern... '$file'..";
+  if [ "$#" -gt 1 ]   # process found files through executable
+  then 
+    bin=$1
+    action=$bin
+    while [[ $1 =~ ^- ]]
+    do
+      bin=$bin\ $1
+      shift
+    done
+  fi
+  
+  for file
+  do #echo "Processing pattern... '$file'..";
+
     paths=$( 
         find ${CDPATH//:/ } -type f -not -path '*/.*' -and -name ${file} 2> /dev/null
         ) 
+  
     echo "Found: ${paths[@]}"
-    if [ ${#paths[@]} -gt 1 ]
+
+    case ${#paths[@]} in
+
+      [2-9]|[1-9][0-9]) 
+
+        echo "Found more than one file in a CDPATH"
+
+        PS3="Select files to process or 'all' (action: $action):   "
+        select path in ${paths[@]}
+        do
+          if [ -n "${path}" ]     # selection was made
+          then
+            paths=( $path ) ; break    # set found[] to one element
+          fi
+
+          if [[ $REPLY =~ ^a(ll)?$ ]] || [ -n "${path}" ] 
+          then  # if "all" paths[] is not modified 
+            break     
+          fi
+        done    
+        ;&
+        
+      1) 
+        # add current files set corresponding to the 'file' pattern to
+        # the files[] array
+        files+=( ${paths[@]} )
+        ;;
+
+      0)
+        # no files; nothing to add
+        ;;
+
+      *) echo "Something unexpected happened"
+        ;;
+     esac
+  done 
+
+  case $action in
+    cd)
+      test ${#files[@]} -eq 1 || { echo "Cannot naviagate multiple directories."; \ exit 2; } 
+      files=( `dirname $files` )
+    ;;
+  esac
+
+  # Finally run binary with all the flags
+  #echo "${bin} ${files[@]}"
+  ${bin} ${files[@]}
+}
+
+
+# Display files in CDPATH, for those who has absolute a relative
+# paths specified visualise file existense.
+function find_files_in_cdpath() {
+
+  declare -a files
+  declare -a paths
+
+  for file
+  do #echo "Processing pattern... '$file'..";
+
+    # Search only for those files that are not relative or 
+    # full path
+    if ! [[ $file =~ \/ ]] 
     then
-      echo "Found more than one file in a CDPATH"
-      PS3="Select file to edit (or 'all'):   "
-      select path in ${paths[@]}
-      do
-        if [ -n "${path}" ]     # selection was made
-        then
-          paths=( $path ) ; break    # set found[] to one element
-        fi
+      paths=( $( find ${CDPATH//:/ } -type f -not -path '*/.*' -and -name ${file} 2> /dev/null ) )
+    
+      echo "Found: ${paths[@]}"
 
-        if [[ $REPLY =~ ^a(ll)?$ ]]
-        then
-          break
-        fi # keep all the files
-      done
+      case ${#paths[@]} in
+
+        [2-9]|[1-9][0-9]) 
+
+          echo "Found more than one file in a CDPATH"
+
+          PS3="Select files to process or 'all':   "
+          select path in ${paths[@]}
+          do
+            if [ -n "${path}" ]     # selection was made
+            then
+              paths=( $path ) ; break    # set found[] to one element
+            fi
+
+            if [[ $REPLY =~ ^a(ll)?$ ]] || [ -n "${path}" ] 
+            then  # if "all" paths[] is not modified 
+              break     
+            fi
+          done    
+          ;&
+          
+        1) 
+          # add current files set corresponding to the 'file' pattern to
+          # the files[] array
+          files+=( ${paths[@]} )
+          ;;
+
+        0)
+          # no files; nothing to add
+          ;;
+
+        *) echo "Something unexpected happened"
+          ;;
+      esac
+    #
+    # Relative or full path to the file was passed, just add it to the global
+    # array
+    else
+      files+=( file )
     fi
-    files+=( ${paths[@]} )    # add current files set corresponding to the 'file' pattern to
-  done                        # the files[] array
-  echo -e "Following files will be opened:\n  " ${files[@]}
+  done 
+}
 
-  if ! [ "${files[@]}]" ]
-  then
-    echo "No files found"
-    exit
-  fi
-  read -n 1 -p "Press any key to continue..."
-  vim ${flag} ${files[@]}
+# Open file(s) found in CDPATH. If file was not found 
+# create it.
+function vim-in-cdpath() {
+  
+  declare -a files
+  declare -a paths
+
+  flags='-p'          # default flag when opening vim
+  bin=`type -P vim`   # find path to vim executatble
+
+  while [[ $1 =~ ^- ]]
+  do
+    flags=$flags\ $1
+    shift
+  done
+
+  echo "In vim-in-cdpath"
+  for file
+  do 
+  
+    echo "Processing pattern... '$file'..";
+
+    # Search only for those files that are not relative or 
+    # full path
+    if ! [[ $file =~ \/ ]] 
+    then
+
+      paths=( $( find ${CDPATH//:/ } -type f -not -path '*/.*' -and -name ${file} 2> /dev/null ) )
+    
+      echo "Found: ${paths[@]}"
+
+      case ${#paths[@]} in
+
+        [2-9]|[1-9][0-9]) 
+
+          echo "Found more than one file in a CDPATH"
+
+          PS3="Select files to process or 'all':   "
+          select path in ${paths[@]}
+          do
+            if [ -n "${path}" ]     # selection was made
+            then
+              paths=( $path ) ; break    # set found[] to one element
+            fi
+
+            if [[ $REPLY =~ ^a(ll)?$ ]] || [ -n "${path}" ] 
+            then  # if "all" paths[] is not modified 
+              break     
+            fi
+          done    
+
+            ;&
+          
+        1) 
+          # add current files set corresponding to the 'file' pattern to
+          # the files[] array
+          files+=( ${paths[@]} )
+
+            ;;
+
+        0)
+          # no files - create new file (simulating vim behavior)
+          files+=( $file )
+
+            ;;
+
+        *) echo "Something unexpected happened"
+
+            ;;
+      esac
+    #
+    # Relative or full path to the file was passed, just add it to the global
+    # array
+    else
+      files+=( $file )
+    fi
+  done 
+ echo ${bin} ${flags} ${files[@]}
 }

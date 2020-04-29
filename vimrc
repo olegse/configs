@@ -24,7 +24,14 @@ let @p='·'
 "let @c='s/^\(\s*\)\([^ \t#]\)/\1#\2/'
 ""let @c='I<!-- <Esc>'
 
+" jump to the next tag attribute entry
+let @t = "/=\"\n"
+
+" Double surrounding elements
+map DD  ylp%ylp
+" 
 " Comment selected lines; still doesn't work when
+"
 " called with the register, like :@c<Return>
 map <C-x> :s/^\(\s*\)\([^ \t#]\)/\1#\2/<Return>
 map <C-c> :s/#//<Return>
@@ -45,6 +52,7 @@ map <C-n>   :nohls<Return>
 " 
 " s"  surround double quotes
 " s'  surround single quotes
+" s9  surround with ( )
 " s{  surround by { } 
 " s{{ surround with {{ }}
 " s[  surround [
