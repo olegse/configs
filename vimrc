@@ -33,7 +33,7 @@ map DD  ylp%ylp
 " Comment selected lines; still doesn't work when
 "
 " called with the register, like :@c<Return>
-map <C-x> :s/^\(\s*\)\([^ \t#]\)/\1#\2/<Return>
+map <C-x> :s/^\(\s*\)\([^ \t#]\)/\1#\2/<Return><C-n>
 map <C-c> :s/#//<Return>
 
 " Mappings

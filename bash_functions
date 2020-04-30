@@ -125,24 +125,26 @@ function cdpath() {
 
   #default action
   bin=cd
-  action=$bin
 
   if [ "$#" -gt 1 ]   # process found files through executable
   then 
     bin=$1
-    action=$bin
+    shift
     while [[ $1 =~ ^- ]]
     do
       bin=$bin\ $1
       shift
     done
   fi
+  action=$bin
+
   
   for file
-  do #echo "Processing pattern... '$file'..";
+  do echo "Processing pattern... '$file'..";
 
+        #find ${CDPATH//:/ } -type f -not -path '*/.*' -and -name ${file} 2> /dev/null
     paths=$( 
-        find ${CDPATH//:/ } -type f -not -path '*/.*' -and -name ${file} 2> /dev/null
+        find ${CDPATH//:/ } -type f -name ${file} 2> /dev/null
         ) 
   
     echo "Found: ${paths[@]}"
@@ -242,7 +244,8 @@ function find_files_in_cdpath() {
           ;;
 
         0)
-          # no files; nothing to add
+          # no files; nothing to add! add anyway and then run function
+          # visualisatino files existence
           ;;
 
         *) echo "Something unexpected happened"
@@ -273,26 +276,25 @@ function vim-in-cdpath() {
     shift
   done
 
-  echo "In vim-in-cdpath"
   for file
   do 
   
-    echo "Processing pattern... '$file'..";
+#    echo "Processing pattern... '$file'..";
 
     # Search only for those files that are not relative or 
     # full path
-    if ! [[ $file =~ \/ ]] 
+    if [[ ! $file =~ \/ && ! -e $file ]] 
     then
 
       paths=( $( find ${CDPATH//:/ } -type f -not -path '*/.*' -and -name ${file} 2> /dev/null ) )
     
-      echo "Found: ${paths[@]}"
+      #echo "Found: ${paths[@]}"
 
       case ${#paths[@]} in
 
         [2-9]|[1-9][0-9]) 
 
-          echo "Found more than one file in a CDPATH"
+          #echo "Found more than one file in a CDPATH"
 
           PS3="Select files to process or 'all':   "
           select path in ${paths[@]}
@@ -334,5 +336,6 @@ function vim-in-cdpath() {
       files+=( $file )
     fi
   done 
- echo ${bin} ${flags} ${files[@]}
+  #echo ${bin} ${flags} ${files[@]}
+  ${bin} ${flags} ${files[@]}
 }
