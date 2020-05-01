@@ -142,12 +142,10 @@ function cdpath() {
   for file
   do echo "Processing pattern... '$file'..";
 
-        #find ${CDPATH//:/ } -type f -not -path '*/.*' -and -name ${file} 2> /dev/null
-    paths=$( 
-        find ${CDPATH//:/ } -type f -name ${file} 2> /dev/null
-        ) 
+    paths=($(find -L ${CDPATH//:/ } -type f -not -path '*/.*' -and -name ${file} 2> /dev/null ))
+        #find ${CDPATH//:/ } -type f -name ${file} 2> /dev/null) 
   
-    echo "Found: ${paths[@]}"
+    echo "Found: ${paths[@]} (${#path[@]})"
 
     case ${#paths[@]} in
 
