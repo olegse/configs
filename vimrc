@@ -9,7 +9,7 @@ set et            " expand tab
 set nohls
 set splitbelow
 set hls
-set rnu           " relativenumber
+set nornu           " relativenumber
 
 " Highlighting
 highlight IncSearch ctermfg=blue  ctermbg=black
@@ -44,8 +44,8 @@ map si  :split $MYVIMRC<Return>
 " Source $MYVIMRC
 map so  :source $MYVIMRC<Return>
 
-" Clear search
-map <C-n>   :nohls<Return>
+" Turn on or off search highlighting
+map <C-n>   :set hls !<Return>
 
 
 " Surrounding mappings
