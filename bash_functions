@@ -266,7 +266,8 @@ function vim-in-cdpath() {
   declare -a paths
 
   flags='-p'          # default flag when opening vim
-  bin=`type -P vim`   # find path to vim executatble
+  bin=`type -P vim`   # find path to vim executatble instead
+                      # trigerring an alias again
 
   while [[ $1 =~ ^- ]]
   do
@@ -277,7 +278,7 @@ function vim-in-cdpath() {
   for file
   do 
   
-#    echo "Processing pattern... '$file'..";
+    echo "Processing pattern... '$file'..";
 
     # Search only for those files that are not relative or 
     # full path
@@ -286,7 +287,7 @@ function vim-in-cdpath() {
 
       paths=( $( find ${CDPATH//:/ } -type f -not -path '*/.*' -and -name ${file} 2> /dev/null ) )
     
-      #echo "Found: ${paths[@]}"
+      echo "Found: ${paths[@]}"
 
       case ${#paths[@]} in
 
@@ -336,4 +337,9 @@ function vim-in-cdpath() {
   done 
   #echo ${bin} ${flags} ${files[@]}
   ${bin} ${flags} ${files[@]}
+}
+
+# Print "OK" or ":(" 
+function mounted() {
+  mount | grep -q "$1" && echo "OK" || echo ":("
 }

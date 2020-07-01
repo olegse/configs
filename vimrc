@@ -12,15 +12,18 @@ set hls
 set nornu           " relativenumber
 
 " Highlighting
-highlight IncSearch ctermfg=blue  ctermbg=black
-highlight Search ctermbg=blue  ctermfg=black
-highlight Comment ctermbg=none ctermfg=DarkYellow
+highlight IncSearch ctermfg=black  ctermbg=cyan
+highlight Search ctermbg=lightblue  ctermfg=black
+highlight Comment ctermbg=none ctermfg=green
 
 syntax enable
 
 
 " Registers
 let @p='·'
+let @b='</br>'
+
+" Enter # (or any other comment) before the line
 "let @c='s/^\(\s*\)\([^ \t#]\)/\1#\2/'
 ""let @c='I<!-- <Esc>'
 
@@ -33,7 +36,7 @@ map DD  ylp%ylp
 " Comment selected lines; still doesn't work when
 "
 " called with the register, like :@c<Return>
-map <C-x> :s/^\(\s*\)\([^ \t#]\)/\1#\2/<Return><C-n>
+map <C-x> :s/^\(\s*\)\([^ \t#]\)/\1#\2/<Return>:nohls<CR>
 map <C-c> :s/#//<Return>
 
 " Mappings
@@ -46,7 +49,6 @@ map so  :source $MYVIMRC<Return>
 
 " Turn on or off search highlighting
 map <C-n>   :set hls !<Return>
-
 
 " Surrounding mappings
 " 
@@ -73,6 +75,7 @@ map o{ a{}<Esc>i
 map o{{ a{{ }}<Esc>F{a 
 map ob a${}<Esc>i
 map op a$()<Esc>i
+map o"{{ a"{{}}<Esc>h%a. 
 
 " Text pasting mappings
 " pu      put word under cursor under the line
@@ -86,5 +89,7 @@ map pu o<C-R>"
 "map sv lF=a$(<Esc>Ea)<Esc>
 "" surround as a variable $() till the end of the line
 "map sV lF=a$(<Esc>A)<Esc>
+
+map <S-i>    /=\"<Return>f"a
 
 abbr teh the
