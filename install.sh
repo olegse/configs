@@ -1,7 +1,6 @@
 #!/bin/bash
 #
 # Distribute config files to their respective places on the filesystem. 
-# existing configs permanently.
 
 # To implement:
 #     Backup files or `--no-backup' to overwrite.
@@ -26,6 +25,12 @@ function usage() {
   exit $1
 }
 
+
+i=i
+s=s
+l=l
+m=show_diff
+p=p
 while getopts "islmph" opt; do
   case $opt in
     i) ;;
@@ -50,7 +55,9 @@ test "$*" && files=$* || files=$( ls -1 | grep -v "$(basename $0)\|.*.old");
 # List files
 test "$action" == l && { echo "$files"; exit 0; };  # list files on 'l'
 
+# ?
 function p() {
+                  # with exclude standard shows only untracked
   if git ls-files --others --exclude-standard | grep -q .
   then
     echo "Found untracked files... aborting..."
@@ -69,18 +76,24 @@ function i {
   done
 }
 
-# Show difference between new and backedup file
-function m() {
-  declare -a modified_files identical_files
+# Show difference between new and backed up file
+function show_diff() {
+  declare -a modified_files
+  
+  if -z "$files"
+  then
+    echo "No backup files were found."
+    return
+  fi
+
   for file in $files
   do
     if test -e "$file.old"
     then
+      echo "Comparing $file.old..."
       if ! diff $file $file.old 2>/dev/null
       then
         modified_files[${#modified_files[@]}]=$file
-      else
-        identical_files[${#identical_files[@]}]=$file
       fi
     fi
   done
@@ -93,23 +106,9 @@ function m() {
     done
     echo "Please review and merge backed up files; they are" \
          "ignored and will not be pushed to repository."
-  elif
-     [[ -n "${identical_files[@]}" ]]
-    then
-    echo "No difference was found in the backed files. "
-    echo "Following files can be safely removed: "
-    for file in ${identical_files[@]}
-    do echo "   $file.old"
-    done
   else
-    if [ "$action" == "s" ]
-    then
-      echo "No backup files were created."
-    else
-      echo "No backup files were found."
-    fi
+      echo "All the files are identical."
   fi
-  unset modified_files identical_files
 }
 
 #  Source system files into the current directory,
@@ -119,7 +118,8 @@ function s {
   do
     cp -vbS.old ~/.$file $file
   done
-  m         # show_modified
+  show_diff         # show_modified
 }
 
-$action
+# Execute action here
+${!action}
