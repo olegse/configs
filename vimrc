@@ -10,6 +10,7 @@ set nohls
 set splitbelow
 set hls
 set nornu           " relativenumber
+set scrolloff=20
 
 " Highlighting
 highlight IncSearch ctermfg=black  ctermbg=cyan
@@ -92,4 +93,8 @@ map pu o<C-R>"
 
 map <S-i>    /=\"<Return>f"a
 
+" Abbreviations
 abbr teh the
+
+" Pathogen
+execute pathogen#infect('~/.vim/bundle/{}')
