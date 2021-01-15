@@ -109,6 +109,15 @@ function apt_show_repo() {
 }
 
 
+################ User-defined Functions ####################
+
+# Variables  + #
+
+# Openssl alghoritm used by encrypt_file() and decrypt_file() functions
+OPENSSL_ENC_ALG=-aes-256-cbc
+
+
+
 # Perform an action on a directories in CDPATH
 # 
 # cdpath        print search directories
@@ -118,6 +127,7 @@ function apt_show_repo() {
 #                   argument as executable and all the others should
 #                   searched prior in CDPATH
 #
+# If file was not found navigate to the directory of the files that mention the pattern
 function cdpath() {
 
   declare -a files
@@ -343,3 +353,30 @@ function vim-in-cdpath() {
 function mounted() {
   mount | grep -q "$1" && echo "OK" || echo ":("
 }
+
+# Search in files for a pattern and display found strings with file
+# name. The idea is that function will accept a maxdepth, mindepth or both
+
+function find_in_file() {
+  test $1 || { echo "missing search string"; return 1; }
+  find . -maxdepth ${2:-1} -type f -exec grep --with-filename "$1" {} \;  # -H
+}
+
+# Encrypt file using openssl. Encryption alghoritm is identified by OPENSSL_ENC_ALG.
+#  how I was catching an option in args list? Check in Pelmet sources...
+function encrypt_file() {
+  test $1 || { echo "missing file name"; return 1; }
+  openssl enc $OPENSSL_ENC_ALG -in $1 -out $1.enc
+  # After file was encrypted try to unencrypt it and diff with the original
+  # if they are the same remove original and temporary decrypted and leave
+  # only the encrypted one.
+}
+
+# Process whatever extension
+function decrypt_file() {
+  test $1 || { echo "missing file name"; return 1; }
+  openssl enc -d $OPENSSL_ENC_ALG -in $1 -out `basename $1 .${1/*.}`
+}
+
+### more libraries ###
+source $HOME/bash/scripts/lib/functions.sh

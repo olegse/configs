@@ -10,7 +10,7 @@ set nohls
 set splitbelow
 set hls
 set nornu           " relativenumber
-set scrolloff=20
+set ignorecase smartcase
 
 " Highlighting
 highlight IncSearch ctermfg=black  ctermbg=cyan
@@ -59,7 +59,6 @@ map <C-n>   :set hls !<Return>
 " s{  surround by { } 
 " s{{ surround with {{ }}
 " s[  surround [
-" o{{  open  {{
 " ob   open (bracket) ${}
 " op   open (parenthesses)  $() 
 map s" lbi"<Esc>Ea"<Esc>
@@ -75,13 +74,15 @@ map o9 a()<Esc>i
 map o{ a{}<Esc>i
 map o{{ a{{ }}<Esc>F{a 
 map ob a${}<Esc>i
-map op a$()<Esc>i
+map $( a$()<Esc>i
 map o"{{ a"{{}}<Esc>h%a. 
 
 " Text pasting mappings
 " pu      put word under cursor under the line
 " pa      put word under cursor above the line
-map XX yaWo<C-R>"<Space>
+map uL o<Esc>
+map ul o<Esc>
+
 map pa O<C-R>"<Space>
 
 map xx yaWo<C-R>"
@@ -93,7 +94,6 @@ map pu o<C-R>"
 
 map <S-i>    /=\"<Return>f"a
 
-" Abbreviations
 abbr teh the
 
 " Pathogen
