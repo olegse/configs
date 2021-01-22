@@ -3,23 +3,22 @@
 # Distribute config files to their respective places on the filesystem. 
 
 # To implement:
-#     Backup files or `--no-backup' to overwrite.
 #     Add an option to remove backup files when it is no difference
 #     between files or interactive
-# Expand short option to function name.
-# Add a prompt to remove the files.
 
 function usage() {
   echo "Usage: `basename $0 .sh` [-i] [-s] [FILE]..."
   echo ""
-  echo "Install config files. Install files to their respective system"
-  echo "locations. If no file was specified on the command line, only this files"
-  echo "are processed. If the destination file exists, backup is created."
+  echo "Install config files to their respective system"
+  echo "locations. If file names were specified on the command line, only this files"
+  echo "are processed. Use -l to see current configuration files.Files can be either "
+  echo "distributed or sourced from the system. Sourced files are pushed to repository automatically after sourcing."
   echo ""
   echo "  -i      install files (default)"
   echo "  -s      update directory with the system config files"
   echo "  -l      list config files in the directory"
   echo "  -m      show if it is a difference between new and backed-up configuration file"
+  echo "  -f      force pushing even if it is untracked files; configs always taken"
   echo "  -p      source the files from the system and push the code if it is no file difference"
   echo "  -h      print this help and exit"
 
@@ -56,14 +55,21 @@ then
   files="($( echo "$files" | sed 's/ /|/g' ))"
 fi
 #echo "$files"
-files=$( ls -d *  | grep -E $v "${files:-.}" | sed -e 's/ \?install.sh// ' -e 's/ \?\S*.old//g'  )
-echo $files
-
+declare -a files=( $( ls -d *  | grep -E $v "${files:-.}" | sed -e 's/ \?install.sh// ' -e 's/ \?\S*.old//g'  ) )
+#echo "${files[@]}"
+#echo "${files[@]}"
+#echo "${files[1]}"
 #############################
 # Perform an action
 #
 # List files
-test "$action" == l && { echo "$files"; exit 0; };  # list files on 'l'
+test "$action" == l && { 
+  for file in  "${files[@]}"
+  do 
+    echo "$file" 
+  done;
+  exit 0;
+  };  # list files on 'l'
 
 # Push the code if it is no untracked files
 function p() {
@@ -73,7 +79,7 @@ function p() {
   # Probably source here
   if git ls-files --others --exclude-standard | grep -q .
   then
-    echo "Found untracked files... aborting..."
+    echo "Found untracked files... review directory carefully.. aborting..."
     exit 1
   fi
   git add . -A
@@ -93,9 +99,15 @@ function i {
 #  Source system files into the current directory,
 #  adding a '.old' suffix for the existent ones.
 function s {
-  for file in $files
+  for file in ${files[@]}
   do
-    cp -vbS.old ~/.$file $file
+    echo "Checking for existence for '~/.$file'"
+    if [ -e ~/.$file ]
+    then 
+      cp ~/.$file $file # make backups only when files 
+    else
+      echo "No config file found on the system for '$file'.. ignoring.."
+    fi
   done
 }
 
