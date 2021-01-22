@@ -90,37 +90,6 @@ function i {
   done
 }
 
-# Show difference between new and backed up file
-function show_diff() {
-  
-  declare -a modified_files
-  for file in $files
-  do
-    if test -e "$file.old"
-    then
-      echo "Comparing $file.old..."
-      if ! diff $file $file.old 2>/dev/null
-      then # if it was a difference between and new and old file
-      # store them in modified_files[]
-        modified_files[${#modified_files[@]}]=$file
-      fi
-    fi
-  done
-
-  if [[ "${modified_files[@]}" ]]
-  then # Report differed files
-    echo "There is difference in the following files: "
-    for file in ${modified_files[@]}
-    do echo "   $file <-> $file.old"
-    done
-    echo "Please review and merge backed up files; they are" \
-         "ignored and will not be pushed to repository."
-  else
-      echo "All the files are identical."
-      p # ush
-  fi
-}
-
 #  Source system files into the current directory,
 #  adding a '.old' suffix for the existent ones.
 function s {
@@ -128,7 +97,6 @@ function s {
   do
     cp -vbS.old ~/.$file $file
   done
-  show_diff         # show_modified
 }
 
 # Execute action here
