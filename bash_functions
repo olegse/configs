@@ -366,16 +366,25 @@ function find_in_file() {
 #  how I was catching an option in args list? Check in Pelmet sources...
 function encrypt_file() {
   test $1 || { echo "missing file name"; return 1; }
+  #echo "OPENSSL_ENC_ALG: $OPENSSL_ENC_ALG"
   openssl enc $OPENSSL_ENC_ALG -in $1 -out $1.enc
   # After file was encrypted try to unencrypt it and diff with the original
   # if they are the same remove original and temporary decrypted and leave
   # only the encrypted one.
 }
 
-# Process whatever extension
+# Decrypt files encrypted by encrypt_file(). Expects
+# second argumnet to be a directory path where file should 
+# be decrypted. If it is not a directory treat it as filename.
+# If no argument was supplied the output on stdout.
 function decrypt_file() {
+  # Put '.' for the directory path instead of the STDOUT
   test $1 || { echo "missing file name"; return 1; }
-  openssl enc -d $OPENSSL_ENC_ALG -in $1 -out `basename $1 .${1/*.}`
+  test $2 &&  { out=$2/`basename $1 .${1/*.}`;} || { out=- ;}
+  in=$1; cp $1{,.bak}
+  echo "in: $in"
+  echo "out: $out"
+  openssl enc -d $OPENSSL_ENC_ALG -in $in -out $out
 }
 
 ### more libraries ###
