@@ -5,6 +5,7 @@
 # To implement:
 #     Add an option to remove backup files when it is no difference
 #     between files or interactive
+#     Maybe restore to the previous version by git command?
 
 function usage() {
   echo "Usage: `basename $0 .sh` [-i] [-s] [FILE]..."
@@ -17,9 +18,9 @@ function usage() {
   echo "  -i      install files (default)"
   echo "  -s      update directory with the system config files"
   echo "  -l      list config files in the directory"
-  echo "  -m      show if it is a difference between new and backed-up configuration file"
   echo "  -f      force pushing even if it is untracked files; configs always taken"
   echo "  -p      source the files from the system and push the code if it is no file difference"
+  echo "  -v      invert match"
   echo "  -h      print this help and exit"
 
   exit $1
@@ -31,17 +32,19 @@ s=s
 l=l
 m=show_diff
 p=p
-while getopts "islmph" opt; do
+while getopts "islmvph" opt; do
   case $opt in
     i) ;;
     s) ;;
     l) ;;
     m) ;;
+    v) v=-v;;    #  --invert-match
     p) ;;
     h) usage 0 ;;
     *) usage 1 ;;
   esac
-  action=$opt
+  test $opt == "v"  || \
+    action=$opt;
 done
 test -n "$action" || usage 1; # no action was specified
 
@@ -54,11 +57,8 @@ then
   files=$*
   files="($( echo "$files" | sed 's/ /|/g' ))"
 fi
-#echo "$files"
-declare -a files=( $( ls -d *  | grep -E $v "${files:-.}" | sed -e 's/ \?install.sh// ' -e 's/ \?\S*.old//g'  ) )
-#echo "${files[@]}"
-#echo "${files[@]}"
-#echo "${files[1]}"
+declare -a files=( $( ls -d *  | sed '/\(install.sh\|.*.old\)/d' | grep -E $v "${files:-.}"  ) )
+
 #############################
 # Perform an action
 #
@@ -104,7 +104,7 @@ function s {
     echo "Checking for existence for '~/.$file'"
     if [ -e ~/.$file ]
     then 
-      cp ~/.$file $file # make backups only when files 
+      cp --verbose ~/.$file $file # make backups only when files 
     else
       echo "No config file found on the system for '$file'.. ignoring.."
     fi

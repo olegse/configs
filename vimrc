@@ -10,15 +10,13 @@ set nohls
 set splitbelow
 set hls
 set nornu           " relativenumber
-set ignorecase smartcase
-
-" Highlighting
-highlight IncSearch ctermfg=black  ctermbg=cyan
-highlight Search ctermbg=lightblue  ctermfg=black
-highlight Comment ctermbg=none ctermfg=green
+set scrolloff=20
 
 syntax enable
+syntax on
+highlight Comment ctermfg=057   " BlueViolet
 
+"set highlight Comment ctermfg=DarkGrey
 
 " Registers
 let @p='·'
@@ -59,6 +57,7 @@ map <C-n>   :set hls !<Return>
 " s{  surround by { } 
 " s{{ surround with {{ }}
 " s[  surround [
+" o{{  open  {{
 " ob   open (bracket) ${}
 " op   open (parenthesses)  $() 
 map s" lbi"<Esc>Ea"<Esc>
@@ -74,15 +73,13 @@ map o9 a()<Esc>i
 map o{ a{}<Esc>i
 map o{{ a{{ }}<Esc>F{a 
 map ob a${}<Esc>i
-map $( a$()<Esc>i
+map op a$()<Esc>i
 map o"{{ a"{{}}<Esc>h%a. 
 
 " Text pasting mappings
 " pu      put word under cursor under the line
 " pa      put word under cursor above the line
-map uL o<Esc>
-map ul o<Esc>
-
+map XX yaWo<C-R>"<Space>
 map pa O<C-R>"<Space>
 
 map xx yaWo<C-R>"
@@ -94,7 +91,14 @@ map pu o<C-R>"
 
 map <S-i>    /=\"<Return>f"a
 
+" Abbreviations
 abbr teh the
 
 " Pathogen
 execute pathogen#infect('~/.vim/bundle/{}')
+
+"set background=dark
+"colorscheme default
+"highlight IncSearch ctermfg=black  ctermbg=cyan
+"highlight Search ctermbg=lightblue  ctermfg=black
+"highlight Comment ctermbg=none ctermfg=green

@@ -368,6 +368,7 @@ function encrypt_file() {
   test $1 || { echo "missing file name"; return 1; }
   #echo "OPENSSL_ENC_ALG: $OPENSSL_ENC_ALG"
   openssl enc $OPENSSL_ENC_ALG -in $1 -out $1.enc
+
   # After file was encrypted try to unencrypt it and diff with the original
   # if they are the same remove original and temporary decrypted and leave
   # only the encrypted one.
@@ -378,14 +379,47 @@ function encrypt_file() {
 # be decrypted. If it is not a directory treat it as filename.
 # If no argument was supplied the output on stdout.
 function decrypt_file() {
-  # Put '.' for the directory path instead of the STDOUT
   test $1 || { echo "missing file name"; return 1; }
-  test $2 &&  { out=$2/`basename $1 .${1/*.}`;} || { out=- ;}
+  # print to STDOUT by default
+  out=-
+
+  # Change output file with respect to the second argument
+  case $2 in
+    '.'|*/)
+      # If '.' was specified as second argument use same file
+      # name but without prefix (i.e. creds.enc -> creds )
+      # full path is current directory, $2='.'; if '/' is found
+      # at the end it is treated as filename. We must use ${var%<end_pattern>} 
+      # construct to strip additional '/' then.
+      out=${2%/}/`basename $1 .${1/*.}`;;
+    
+    ?*)
+      echo here
+      # Full path, slash will remain
+      if [ ${2/[a-z]*} ]
+      then
+        out=$2
+      else
+        out=./$2
+      fi;;
+      
+  esac
+
+
   in=$1; cp $1{,.bak}
   echo "in: $in"
   echo "out: $out"
+  # Test if resulting file names pointing to the same file
+  test -e $out && { 
+  
+    echo -e "Warning! Rewriting an existing file!\nSpecify file" \
+         "name explictly by full path or base directory by" \
+         "\nprepending slash at the end.";
+   return 5;}
+
   openssl enc -d $OPENSSL_ENC_ALG -in $in -out $out
 }
 
 ### more libraries ###
-source $HOME/bash/scripts/lib/functions.sh
+if [ -e $HOME/bash/scripts/lib/functions.sh ]; then
+source $HOME/bash/scripts/lib/functions.sh; fi
