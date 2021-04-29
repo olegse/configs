@@ -95,10 +95,12 @@ map <S-i>    /=\"<Return>f"a
 abbr teh the
 
 " Pathogen
-execute pathogen#infect('~/.vim/bundle/{}')
+"execute pathogen#infect('~/.vim/bundle/{}')
 
 "set background=dark
 "colorscheme default
 "highlight IncSearch ctermfg=black  ctermbg=cyan
 "highlight Search ctermbg=lightblue  ctermfg=black
 "highlight Comment ctermbg=none ctermfg=green
+
+highlight Comment ctermfg=darkgrey
