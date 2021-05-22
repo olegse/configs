@@ -228,12 +228,13 @@ nnoremap <Left> gT
 abbr teh the
 
 " Pathogen
-execute pathogen#infect('~/.vim/bundle/{}')
+"execute pathogen#infect('~/.vim/bundle/{}')
 
 "set background=dark
 colorscheme darkblue
 "highlight Comment ctermbg=none ctermfg=green
 
+<<<<<<< HEAD
 augroup Html
   au BufNewFile *.blade.php 0r ~/.vim/skeleton/html
 augroup end
@@ -248,3 +249,6 @@ augroup end
 
 " IDEA
 " insert after next word
+=======
+highlight Comment ctermfg=darkgrey
+>>>>>>> c67157dcb82829263d1d3b8c9ac5cb720c005a11
