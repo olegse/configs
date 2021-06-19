@@ -260,7 +260,14 @@ function encrypt_file() {
   test $1 || { echo "missing file name"; return 1; }
   file=$1
   newfile=${2:-$1}${ENC_SUF}
-  echo -e "file:   $file\nnewfile:   $newfile"
+  
+  if [ $debug -gt 0 ]
+  then
+    echo "file:      $file"
+    echo "newfile:   $newfile"
+    return
+  fi
+
   openssl enc $OPENSSL_ENC_ALG -in $file -out $newfile
 
   # After file was encrypted try to unencrypt it and diff with the original
@@ -314,6 +321,33 @@ function decrypt_file() {
   openssl enc -d $OPENSSL_ENC_ALG -in $in -out $out
 }
 
-### more libraries ###
-if [ -e $HOME/bash/scripts/lib/functions.sh ]; then
-source $HOME/bash/scripts/lib/functions.sh; fi
+# find(1) wrapper, displays file names in which pattern was found
+#  
+# Usage: [grep_opts] dir [DIR] [DEPTH] EXPR
+#
+# Note the options to grep(1). It can be changed by passing another values
+# explicitly on the command line.
+GREP_OPTS="--color --with-filename --line-number $grep_opts";
+function dir () 
+{ 
+  grep_opts=$GREP_OPTS
+  case $# in 
+      3)
+          dir=$1;
+          depth=$2;
+          expr=$3
+      ;;
+      2)
+          dir=$1;
+          expr=$3
+      ;;
+      1)
+          expr=$1
+      ;;
+      0)
+          echo "search pattern must be specified!" 2>&1;
+          return 1
+      ;;
+  esac;
+  find $dir -maxdepth $depth -type f -exec grep ${grep_opts} {} -e "$expr" \;
+}
