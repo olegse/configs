@@ -261,7 +261,7 @@ function encrypt_file() {
   file=$1
   newfile=${2:-$1}${ENC_SUF}
   
-  if [ $debug -gt 0 ]
+  if [ ${debug:=0} -gt 0 ]
   then
     echo "file:      $file"
     echo "newfile:   $newfile"
