@@ -1,4 +1,16 @@
 # User-defined functions
+# see at the bottom of the file for aliases
+
+# Expects one argument to be tested against pattern. Returns true (0) if 
+#  numeric or false (1) otherwise.
+is_numeric() {
+  n=$1
+  #declare -n n=$1
+  if [[ $n =~ ^[0-9]+$ ]]; then
+    return 0      # true can be used in IF then
+  fi
+  return 1
+}
 
 # Perform an action on a directories in CDPATH
 # 
@@ -323,31 +335,95 @@ function decrypt_file() {
 
 # find(1) wrapper, displays file names in which pattern was found
 #  
-# Usage: [grep_opts] dir [DIR] [DEPTH] EXPR
+# Usage: [GREP_OPTS] dir [DIR] [DEPTH] EXPR
 #
+#   DIR DEPTH EXPR
+#   DIR EXPR
+#   EXPR
 # Note the options to grep(1). It can be changed by passing another values
-# explicitly on the command line.
-GREP_OPTS="--color --with-filename --line-number $grep_opts";
-function dir () 
+# explicitly on the command line by prepending command with grep_opts=
+# ADD . .  and handle ${m:--max-depth 5} or empty, is it ?
+grep_opts="--color --with-filename --line-number";
+function dir() 
 { 
-  grep_opts=$GREP_OPTS
-  case $# in 
-      3)
-          dir=$1;
-          depth=$2;
-          expr=$3
-      ;;
-      2)
-          dir=$1;
-          expr=$3
-      ;;
-      1)
-          expr=$1
-      ;;
-      0)
-          echo "search pattern must be specified!" 2>&1;
-          return 1
-      ;;
-  esac;
-  find $dir -maxdepth $depth -type f -exec grep ${grep_opts} {} -e "$expr" \;
+  # Accept asterisk '*' for any depth
+  test -n "$GREP_OPTS" && grep_opts=$GREP_OPTS
+  # Must by delcared as such, otherwise they retain values after a call
+  declare ERROR
+  #declare dir
+  #declare depth
+  #declare expr
+  
+  if [ $# -gt 3 ]; then
+    echo "Excess number of arguments specified" >&2 
+    ((ERROR++)) 
+  elif [  $# -eq 0 ]; then
+    echo "Search pattern must be specified!" >&2;
+    ((ERROR++)) 
+  fi
+  test -z "$ERROR" || { echo "Usage: [grep_opts] dir [DIR] [DEPTH] EXPR" >&2; \
+                        return 1; }
+  expr=${!#}
+  while [ $# -gt 1 ]
+  do
+    if test $1 = 'max'
+    then
+      depth='300' 
+    elif test -e $1; then
+      dir=$1
+    else
+      depth=$1
+    fi
+    shift;
+  done;
+#  echo "dir: $dir"
+#  echo "depth: $depth"
+#  echo "expr: $expr"
+# return 2
+  #echo "find ${dir:-.} -maxdepth ${depth:-1} -type f -exec grep ${grep_opts} {} -e \"$expr\" \;"
+  find ${dir:-.} -maxdepth ${depth:-1} -type f -exec grep ${grep_opts} {} -e "$expr" \;
+}
+
+
+################# DOCKER ####################
+
+# Configure container aliases
+
+# Set cnt_id to id of the last container
+alias cnt_id='docker ps --no-trunc --latest --quiet'
+# Set cnt_ip to ip of the last created container
+alias cnt_ip='docker container inspect `cnt_id` -f "{{ .NetworkSettings.IPAddress}}"'
+# Show environment of the last container that was created
+alias cnt_env='docker exec $(cnt_id) env'
+# Open a shell to the last container that was used
+alias cnt_open='docker exec -it $(cnt_id) bash'
+# Display network information about the last container that was used
+alias cnt_netinfo='docker inspect $(cnt_id) -f "{{json .NetworkSettings}}" | grep -o "\(NetworkID\|IPAddress\)[^,]\+" | sed -n "/NetworkID/,/IPAddress/ {s/\":\"/\t/; s/\"//p}"'
+#  Display network id of the last container that was used
+alias cnt_netid='docker inspect $(cnt_id) -f "{{json .NetworkSettings}}" | grep -o "NetworkID[^,]\+" | cut -d: -f2'
+# Remove last container that was used
+alias cnt_rm='docker rm -f $(cnt_id)'
+alias cnt_mounts='docker inspect $(cnt_id) --format "{{ .Mounts }}"'
+
+function compose()  { docker-compose $@; }
+function  images()  { docker  images $@; }
+
+# Inspect container
+function inspect() {
+  test $1 && id=$1 || id=$(cnt_id)
+  docker inspect $id | less
+}
+
+# Inspect network of the last container or the one in arguments
+function netinfo() {
+  test $1 && id=$1 || id=$(cnt_id)
+  docker inspect ${id} -f "{{json .NetworkSettings}}" | \
+    grep -o "\(NetworkID\|IPAddress\)[^,]\+" | \
+    sed -n "/NetworkID/,/IPAddress/ {s/\":\"/\t/; s/\"//p}"
+}
+
+# what about ports and mounts
+function docker_root_dir() {
+  DOCKER_ROOT_DIR=$( docker info | awk -F: '/Docker Root Dir/ {print $2}' )
+  echo "DOCKER_ROOT_DIR was set to '$DOCKER_ROOT_DIR'"
 }
