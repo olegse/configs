@@ -423,7 +423,8 @@ function netinfo() {
 }
 
 # what about ports and mounts
-function docker_root_dir() {
+function docker_root_dir() 
+{
   DOCKER_ROOT_DIR=$( docker info | awk -F: '/Docker Root Dir/ {print $2}' )
   echo "DOCKER_ROOT_DIR was set to '$DOCKER_ROOT_DIR'"
 }

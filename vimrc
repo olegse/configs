@@ -14,7 +14,7 @@ set scrolloff=20
 
 syntax enable
 syntax on
-highlight Comment ctermfg=Grey   " BlueViolet
+highlight Comment ctermfg=DarkGrey   " BlueViolet
 
 "set highlight Comment ctermfg=DarkGrey
 
